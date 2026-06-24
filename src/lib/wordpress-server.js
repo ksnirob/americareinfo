@@ -14,6 +14,12 @@ function rewriteWordPressAssetUrls(css) {
   return css.replaceAll(`${WORDPRESS_URL}/wp-content/`, frontendContentPath);
 }
 
+function rewriteWordPressLinks(html) {
+  if (!html || !WORDPRESS_URL || !SITE_URL) return html || "";
+
+  return html.replaceAll(WORDPRESS_URL, SITE_URL);
+}
+
 function extractInlineStyles(html) {
   const styles = [];
   const styleRegex = /<style\b[^>]*>([\s\S]*?)<\/style>/gi;
@@ -60,7 +66,12 @@ export async function getHeader() {
 
     if (!res.ok) return null;
 
-    return res.json();
+    const header = await res.json();
+
+    return {
+      ...header,
+      html: rewriteWordPressLinks(header?.html),
+    };
   } catch {
     return null;
   }

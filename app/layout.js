@@ -1,9 +1,9 @@
 import "../src/scss/global.scss";
 
+import Header from "@/src/components/Header";
 import {
   getWordPressFontFaces,
   getWordPressStyles,
-  getHeader,
 } from "@/src/lib/wordpress-server";
 
 export const metadata = {
@@ -12,10 +12,9 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }) {
-  const [fontFaces, wordpressStyles, header] = await Promise.all([
+  const [fontFaces, wordpressStyles] = await Promise.all([
     getWordPressFontFaces(),
     getWordPressStyles(),
-    getHeader(),
   ]);
 
   const sources = wordpressStyles?.sources || [];
@@ -58,10 +57,7 @@ export default async function RootLayout({ children }) {
       </head>
 
       <body>
-        {/* HEADER */}
-        {header?.html && (
-          <header dangerouslySetInnerHTML={{ __html: header.html }} />
-        )}
+        <Header />
 
         <main>{children}</main>
       </body>

@@ -8,5 +8,5 @@ export default async function Header() {
         return <h1>Header not found</h1>;
     }
 
-    return <WordpressContent content={header.html} />;
+    return <WordpressContent as="header" className="" content={header.html} />;
 }

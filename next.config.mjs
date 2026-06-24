@@ -2,21 +2,16 @@ const wordpressUrl = process.env.NEXT_PUBLIC_WORDPRESS_API_URL?.replace(
   /\/+$/,
   "",
 );
-const wordpressImageSource = wordpressUrl ? new URL(wordpressUrl) : null;
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
     remotePatterns: [
-      wordpressImageSource && {
-        protocol: wordpressImageSource.protocol.replace(":", ""),
-        hostname: wordpressImageSource.hostname,
-        port: wordpressImageSource.port,
+      process.env.WORDPRESS_IMAGE_HOSTNAME && {
+        protocol: process.env.WORDPRESS_IMAGE_PROTOCOL || "https",
+        hostname: process.env.WORDPRESS_IMAGE_HOSTNAME,
+        port: process.env.WORDPRESS_IMAGE_PORT || "",
         pathname: "/wp-content/uploads/**",
-      },
-      {
-        protocol: "http",
-        hostname: "localhost",
       },
     ].filter(Boolean),
   },
