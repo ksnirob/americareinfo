@@ -1,9 +1,15 @@
-import { getPageBySlug } from "@/src/lib/wordpress-server";
+import {
+  getPageBySlug,
+  getWordPressPageStyles,
+} from "@/src/lib/wordpress-server";
 import WordpressContent from "@/src/lib/WordpressContent";
 
 export default async function HomePage() {
 
-  const page = await getPageBySlug("home");
+  const [page, pageStyles] = await Promise.all([
+    getPageBySlug("home"),
+    getWordPressPageStyles(),
+  ]);
 
   if (!page) {
     return <h1>Home page not found</h1>;
@@ -11,7 +17,13 @@ export default async function HomePage() {
 
   return (
     <div>
-      <h1>{page.title.rendered}</h1>
+      {pageStyles && (
+        <style
+          id="wp-page-styles"
+          dangerouslySetInnerHTML={{ __html: pageStyles }}
+        />
+      )}
+
       <main>
         <WordpressContent content={page.content.rendered} />
       </main>
