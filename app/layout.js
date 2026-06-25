@@ -33,9 +33,9 @@ export default async function RootLayout({ children }) {
         {/* =========================
             1. WORDPRESS CSS FIRST
         ========================= */}
-        {cssFiles.map((url) => (
+        {/* {cssFiles.map((url) => (
           <link key={url} rel="stylesheet" href={url} />
-        ))}
+        ))} */}
 
         {/* =========================
             2. WORDPRESS INLINE CSS
@@ -48,12 +48,6 @@ export default async function RootLayout({ children }) {
             }}
           />
         )}
-
-        {/* =========================
-            3. YOUR GLOBAL CSS LAST
-            (IMPORTANT FIX)
-        ========================= */}
-        {/* Move global.scss import ABOVE or convert to CSS file */}
       </head>
 
       <body>
