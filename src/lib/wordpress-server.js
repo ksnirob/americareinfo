@@ -45,7 +45,7 @@ export async function getHeader() {
   try {
     const res = await fetch(
       `${WORDPRESS_URL}/wp-json/aci/v1/header`,
-      { cache: "no-store" }
+      { next: { revalidate: 300, tags: ["wordpress-header"] } }
     );
 
     if (!res.ok) return null;
@@ -65,7 +65,7 @@ export async function getWordPressStyles() {
   try {
     const res = await fetch(
       `${WORDPRESS_URL}/wp-json/aci/v1/styles`,
-      { cache: "no-store" }
+      { next: { revalidate: 3600, tags: ["wordpress-styles"] } }
     );
 
     if (!res.ok) {
@@ -86,7 +86,7 @@ export async function getWordPressStyles() {
 export async function getWordPressFontFaces() {
   try {
     const res = await fetch(`${WORDPRESS_URL}`, {
-      cache: "no-store",
+      next: { revalidate: 3600, tags: ["wordpress-fonts"] },
     });
 
     if (!res.ok) return "";
@@ -113,7 +113,9 @@ export async function getWordPressPageStyles(slug = "") {
   }
 
   try {
-    const res = await fetch(stylesUrl, { cache: "no-store" });
+    const res = await fetch(stylesUrl, {
+      next: { revalidate: 300, tags: ["wordpress-page-styles"] },
+    });
 
     if (!res.ok) return "";
 

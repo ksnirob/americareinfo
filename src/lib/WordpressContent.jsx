@@ -23,7 +23,17 @@ export default function WordpressContent({
 
     if (!link || link.target === "_blank") return null;
 
-    const url = new URL(link.href);
+    const href = link.getAttribute("href");
+
+    if (!href || href.startsWith("#")) return null;
+
+    let url;
+
+    try {
+      url = new URL(href, window.location.origin);
+    } catch {
+      return null;
+    }
 
     if (url.origin !== window.location.origin) return null;
 
