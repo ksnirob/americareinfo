@@ -20,22 +20,6 @@ function rewriteWordPressLinks(html) {
   return html.replaceAll(WORDPRESS_URL, SITE_URL);
 }
 
-function extractInlineStyles(html) {
-  const styles = [];
-  const styleRegex = /<style\b[^>]*>([\s\S]*?)<\/style>/gi;
-  let match;
-
-  while ((match = styleRegex.exec(html)) !== null) {
-    const css = match[1]?.trim();
-
-    if (css) {
-      styles.push(css);
-    }
-  }
-
-  return styles.join("\n");
-}
-
 export const getCachedWordPressData = unstable_cache(
   async (endpoint) => {
     const response = await fetch(`${API_URL}/${endpoint}`);
@@ -122,16 +106,20 @@ export async function getWordPressPageStyles(slug = "") {
   if (!WORDPRESS_URL) return "";
 
   const cleanSlug = String(slug).replace(/^\/+|\/+$/g, "");
-  const pageUrl = cleanSlug ? `${WORDPRESS_URL}/${cleanSlug}/` : `${WORDPRESS_URL}/`;
+  const stylesUrl = new URL(`${WORDPRESS_URL}/wp-json/aci/v1/styles`);
+
+  if (cleanSlug) {
+    stylesUrl.searchParams.set("slug", cleanSlug);
+  }
 
   try {
-    const res = await fetch(pageUrl, { cache: "no-store" });
+    const res = await fetch(stylesUrl, { cache: "no-store" });
 
     if (!res.ok) return "";
 
-    const html = await res.text();
+    const data = await res.json();
 
-    return rewriteWordPressAssetUrls(extractInlineStyles(html));
+    return rewriteWordPressAssetUrls(data.pageCss || "");
   } catch {
     return "";
   }

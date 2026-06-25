@@ -8,7 +8,7 @@ export default async function HomePage() {
 
   const [page, pageStyles] = await Promise.all([
     getPageBySlug("home"),
-    getWordPressPageStyles(),
+    getWordPressPageStyles("home"),
   ]);
 
   if (!page) {
