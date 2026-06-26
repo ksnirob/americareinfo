@@ -25,11 +25,13 @@ export default function WordpressContent({
 
     const href = link.getAttribute("href");
 
+    // **NEW UPDATE** Skip empty/hash links from WordPress menu items to avoid invalid URL crashes.
     if (!href || href.startsWith("#")) return null;
 
     let url;
 
     try {
+      // **NEW UPDATE** Resolve relative WordPress links safely before client navigation.
       url = new URL(href, window.location.origin);
     } catch {
       return null;

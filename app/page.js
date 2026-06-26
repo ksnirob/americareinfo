@@ -6,6 +6,7 @@ import WordpressContent from "@/src/lib/WordpressContent";
 
 export default async function HomePage() {
 
+  // **NEW UPDATE** Request home page generated CSS with the home slug.
   const [page, pageStyles] = await Promise.all([
     getPageBySlug("home"),
     getWordPressPageStyles("home"),
@@ -18,6 +19,7 @@ export default async function HomePage() {
   return (
     <div>
       {pageStyles && (
+        // **NEW UPDATE** Inject page-specific generated WordPress CSS.
         <style
           id="wp-page-styles"
           dangerouslySetInnerHTML={{ __html: pageStyles }}

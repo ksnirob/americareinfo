@@ -12,6 +12,7 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }) {
+  // **NEW UPDATE** Load WordPress font-face CSS and global styles with cached server fetches.
   const [fontFaces, wordpressStyles] = await Promise.all([
     getWordPressFontFaces(),
     getWordPressStyles(),
@@ -30,6 +31,11 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
+
+                {/* <link
+                  rel="stylesheet"
+                  href={`http://localhost/wordpress/wp-content/uploads/wp-headless.css`}
+                /> */}
         {/* =========================
             1. WORDPRESS CSS FIRST
         ========================= */}
@@ -41,6 +47,7 @@ export default async function RootLayout({ children }) {
             2. WORDPRESS INLINE CSS
         ========================= */}
         {(fontFaces || wordpressStyles?.css) && (
+          // **NEW UPDATE** Inject WordPress font faces + global CSS into the document head.
           <style
             id="wp-inline"
             dangerouslySetInnerHTML={{

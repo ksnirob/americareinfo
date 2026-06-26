@@ -43,6 +43,7 @@ export async function getPageBySlug(slug) {
 
 export async function getHeader() {
   try {
+    // **NEW UPDATE** Cache header HTML so WordPress is not hit on every request.
     const res = await fetch(
       `${WORDPRESS_URL}/wp-json/aci/v1/header`,
       { next: { revalidate: 300, tags: ["wordpress-header"] } }
@@ -63,6 +64,7 @@ export async function getHeader() {
 
 export async function getWordPressStyles() {
   try {
+    // **NEW UPDATE** Cache the heavy global styles API response.
     const res = await fetch(
       `${WORDPRESS_URL}/wp-json/aci/v1/styles`,
       { next: { revalidate: 3600, tags: ["wordpress-styles"] } }
@@ -85,6 +87,7 @@ export async function getWordPressStyles() {
 
 export async function getWordPressFontFaces() {
   try {
+    // **NEW UPDATE** Keep font-face extraction, but cache it to avoid slowing every request.
     const res = await fetch(`${WORDPRESS_URL}`, {
       next: { revalidate: 3600, tags: ["wordpress-fonts"] },
     });
@@ -105,6 +108,7 @@ export async function getWordPressFontFaces() {
 export async function getWordPressPageStyles(slug = "") {
   if (!WORDPRESS_URL) return "";
 
+  // **NEW UPDATE** Fetch pageCss from the custom styles API instead of scraping rendered HTML.
   const cleanSlug = String(slug).replace(/^\/+|\/+$/g, "");
   const stylesUrl = new URL(`${WORDPRESS_URL}/wp-json/aci/v1/styles`);
 
@@ -113,6 +117,7 @@ export async function getWordPressPageStyles(slug = "") {
   }
 
   try {
+    // **NEW UPDATE** Cache page-generated styles by slug for faster repeated loads.
     const res = await fetch(stylesUrl, {
       next: { revalidate: 300, tags: ["wordpress-page-styles"] },
     });
