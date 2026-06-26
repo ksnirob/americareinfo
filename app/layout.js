@@ -32,10 +32,10 @@ export default async function RootLayout({ children }) {
     <html lang="en">
       <head>
 
-                {/* <link
+                <link
                   rel="stylesheet"
-                  href={`http://localhost/wordpress/wp-content/uploads/wp-headless.css`}
-                /> */}
+                  href={`http://localhost/wordpress/wp-content/uploads/style.css`}
+                />
         {/* =========================
             1. WORDPRESS CSS FIRST
         ========================= */}
@@ -50,9 +50,9 @@ export default async function RootLayout({ children }) {
           // **NEW UPDATE** Inject WordPress font faces + global CSS into the document head.
           <style
             id="wp-inline"
-            dangerouslySetInnerHTML={{
-              __html: `${fontFaces || ""}\n${wordpressStyles?.css || ""}`,
-            }}
+            // dangerouslySetInnerHTML={{
+            //   __html: `${fontFaces || ""}\n${wordpressStyles?.css || ""}`,
+            // }}
           />
         )}
       </head>
