@@ -1,10 +1,7 @@
 import "../src/scss/global.scss";
 
 import Header from "@/src/components/Header";
-import {
-  getWordPressFontFaces,
-  getWordPressStyles,
-} from "@/src/lib/wordpress-server";
+import Footer from "@/src/components/Footer";
 
 export const metadata = {
   title: "My Headless WordPress Site",
@@ -13,29 +10,30 @@ export const metadata = {
 
 export default async function RootLayout({ children }) {
   // **NEW UPDATE** Load WordPress font-face CSS and global styles with cached server fetches.
-  const [fontFaces, wordpressStyles] = await Promise.all([
-    getWordPressFontFaces(),
-    getWordPressStyles(),
-  ]);
+  
+  // const cssFiles = [
+  //   ...new Set(
+  //     sources
+  //       .filter((item) => item?.type === "file" && item?.url)
+  //       .map((item) => item.url)
+  //   ),
+  // ];
 
-  const sources = wordpressStyles?.sources || [];
-
-  const cssFiles = [
-    ...new Set(
-      sources
-        .filter((item) => item?.type === "file" && item?.url)
-        .map((item) => item.url)
-    ),
-  ];
+  
 
   return (
     <html lang="en">
-      <head>
+      <head> 
 
                 <link
                   rel="stylesheet"
-                  href={`http://localhost/wordpress/wp-content/uploads/style.css`}
+                  href={`${process.env.NEXT_PUBLIC_WORDPRESS_API_URL}/wp-content/uploads/headless-css/style.css`}
                 />
+
+                {/* <link
+                  rel="stylesheet"
+                  href={`${process.env.NEXT_PUBLIC_WORDPRESS_API_URL}/wp-content/uploads/wp-headless.css?v=1782580206`}
+                /> */}
         {/* =========================
             1. WORDPRESS CSS FIRST
         ========================= */}
@@ -46,21 +44,15 @@ export default async function RootLayout({ children }) {
         {/* =========================
             2. WORDPRESS INLINE CSS
         ========================= */}
-        {(fontFaces || wordpressStyles?.css) && (
-          // **NEW UPDATE** Inject WordPress font faces + global CSS into the document head.
-          <style
-            id="wp-inline"
-            // dangerouslySetInnerHTML={{
-            //   __html: `${fontFaces || ""}\n${wordpressStyles?.css || ""}`,
-            // }}
-          />
-        )}
+        
       </head>
 
       <body>
         <Header />
 
         <main>{children}</main>
+
+        <Footer />
       </body>
     </html>
   );

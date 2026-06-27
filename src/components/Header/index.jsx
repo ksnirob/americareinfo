@@ -1,12 +1,22 @@
-import { getHeader } from "@/src/lib/wordpress-server";
+import { getTemplatePart } from "@/src/lib/wordpress-server";
 import WordpressContent from "@/src/lib/WordpressContent";
 
-export default async function Header() {
-    const header = await getHeader();
+export default async function Footer() {
+    const header = await getTemplatePart('header');
 
     if (!header) {
-        return <h1>Header not found</h1>;
+        return null;
     }
 
-    return <WordpressContent as="header" className="" content={header.html} />;
+    return <>
+        {header?.blockSupportCss && (
+            <style
+                id={`wp-${header.name}-block-support-css`}
+                dangerouslySetInnerHTML={{
+                __html: header.blockSupportCss,
+                }}
+            />
+        )}
+        <WordpressContent as="header" className="" content={header.html} />
+    </>;
 }

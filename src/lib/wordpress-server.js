@@ -6,18 +6,26 @@ const API_URL = process.env.WORDPRESS_API_URL?.replace(/\/+$/, "");
 const WORDPRESS_URL = process.env.NEXT_PUBLIC_WORDPRESS_API_URL?.replace(/\/+$/, "");
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "");
 
-function rewriteWordPressAssetUrls(css) {
-  if (!css || !WORDPRESS_URL) return css || "";
+// function rewriteWordPressAssetUrls(css) {
+//   if (!css || !WORDPRESS_URL) return css || "";
 
-  const frontendContentPath = SITE_URL ? `${SITE_URL}/wp-content/` : "/wp-content/";
+//   const frontendContentPath = SITE_URL ? `${SITE_URL}/wp-content/` : "/wp-content/";
 
-  return css.replaceAll(`${WORDPRESS_URL}/wp-content/`, frontendContentPath);
-}
+//   return css.replaceAll(`${WORDPRESS_URL}/wp-content/`, frontendContentPath);
+// }
 
+ 
 function rewriteWordPressLinks(html) {
   if (!html || !WORDPRESS_URL || !SITE_URL) return html || "";
-
-  return html.replaceAll(WORDPRESS_URL, SITE_URL);
+ 
+  return html.replace(
+    /(\bhref\s*=\s*)(["'])(.*?)\2/gi,
+    (match, attribute, quote, url) => {
+      if (!url.startsWith(WORDPRESS_URL)) return match;
+ 
+      return `${attribute}${quote}${url.replace(WORDPRESS_URL, SITE_URL)}${quote}`;
+    },
+  );
 }
 
 export const getCachedWordPressData = unstable_cache(
@@ -62,72 +70,96 @@ export async function getHeader() {
   }
 }
 
-export async function getWordPressStyles() {
+
+export async function getTemplatePart( template ) {
   try {
-    // **NEW UPDATE** Cache the heavy global styles API response.
+    // **NEW UPDATE** Cache header HTML so WordPress is not hit on every request.
     const res = await fetch(
-      `${WORDPRESS_URL}/wp-json/aci/v1/styles`,
-      { next: { revalidate: 3600, tags: ["wordpress-styles"] } }
+      `${WORDPRESS_URL}/wp-json/aci/v1/template-part?includeStyles=true&name=${template}`,
+      { next: { revalidate: 300, tags: ["wordpress-header"] } }
     );
 
-    if (!res.ok) {
-      return { css: "", sources: [] };
-    }
+    if (!res.ok) return null;
 
-    const data = await res.json();
+    const response = await res.json();
 
     return {
-      css: data.css || "",
-      sources: Array.isArray(data.sources) ? data.sources : [],
+      ...response,
+      html: rewriteWordPressLinks(response?.html),
     };
   } catch {
-    return { css: "", sources: [] };
+    return null;
   }
 }
 
-export async function getWordPressFontFaces() {
-  try {
-    // **NEW UPDATE** Keep font-face extraction, but cache it to avoid slowing every request.
-    const res = await fetch(`${WORDPRESS_URL}`, {
-      next: { revalidate: 3600, tags: ["wordpress-fonts"] },
-    });
 
-    if (!res.ok) return "";
 
-    const html = await res.text();
+// export async function getWordPressStyles() {
+//   try {
+//     // **NEW UPDATE** Cache the heavy global styles API response.
+//     const res = await fetch(
+//       `${WORDPRESS_URL}/wp-json/aci/v1/styles`,
+//       { next: { revalidate: 3600, tags: ["wordpress-styles"] } }
+//     );
 
-    // FIXED: multi-line safe font extraction
-    const fonts = html.match(/@font-face\s*{[\s\S]*?}/g) || [];
+//     if (!res.ok) {
+//       return { css: "", sources: [] };
+//     }
 
-    return rewriteWordPressAssetUrls(fonts.join("\n"));
-  } catch {
-    return "";
-  }
-}
+//     const data = await res.json();
 
-export async function getWordPressPageStyles(slug = "") {
-  if (!WORDPRESS_URL) return "";
+//     return {
+//       css: data.css || "",
+//       sources: Array.isArray(data.sources) ? data.sources : [],
+//     };
+//   } catch {
+//     return { css: "", sources: [] };
+//   }
+// }
 
-  // **NEW UPDATE** Fetch pageCss from the custom styles API instead of scraping rendered HTML.
-  const cleanSlug = String(slug).replace(/^\/+|\/+$/g, "");
-  const stylesUrl = new URL(`${WORDPRESS_URL}/wp-json/aci/v1/styles`);
+// export async function getWordPressFontFaces() {
+//   try {
+//     // **NEW UPDATE** Keep font-face extraction, but cache it to avoid slowing every request.
+//     const res = await fetch(`${WORDPRESS_URL}`, {
+//       next: { revalidate: 3600, tags: ["wordpress-fonts"] },
+//     });
 
-  if (cleanSlug) {
-    stylesUrl.searchParams.set("slug", cleanSlug);
-  }
+//     if (!res.ok) return "";
 
-  try {
-    // **NEW UPDATE** Cache page-generated styles by slug for faster repeated loads.
-    const res = await fetch(stylesUrl, {
-      next: { revalidate: 300, tags: ["wordpress-page-styles"] },
-    });
+//     const html = await res.text();
 
-    if (!res.ok) return "";
+//     // FIXED: multi-line safe font extraction
+//     const fonts = html.match(/@font-face\s*{[\s\S]*?}/g) || [];
 
-    const data = await res.json();
+//     return rewriteWordPressAssetUrls(fonts.join("\n"));
+//   } catch {
+//     return "";
+//   }
+// }
 
-    return rewriteWordPressAssetUrls(data.pageCss || "");
-  } catch {
-    return "";
-  }
-}
+// export async function getWordPressPageStyles(slug = "") {
+//   if (!WORDPRESS_URL) return "";
+
+//   // **NEW UPDATE** Fetch pageCss from the custom styles API instead of scraping rendered HTML.
+//   const cleanSlug = String(slug).replace(/^\/+|\/+$/g, "");
+//   const stylesUrl = new URL(`${WORDPRESS_URL}/wp-json/aci/v1/styles`);
+
+//   if (cleanSlug) {
+//     stylesUrl.searchParams.set("slug", cleanSlug);
+//   }
+
+//   try {
+//     // **NEW UPDATE** Cache page-generated styles by slug for faster repeated loads.
+//     const res = await fetch(stylesUrl, {
+//       next: { revalidate: 300, tags: ["wordpress-page-styles"] },
+//     });
+
+//     if (!res.ok) return "";
+
+//     const data = await res.json();
+
+//     return rewriteWordPressAssetUrls(data.pageCss || "");
+//   } catch {
+//     return "";
+//   }
+// }
