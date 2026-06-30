@@ -2,6 +2,13 @@ import {
   getPageBySlug,
 } from "@/src/lib/wordpress-server";
 import WordpressContent from "@/src/lib/WordpressContent";
+import { getRankMathMetadata } from "@/src/utils/getRankMathMetadata";
+
+export async function generateMetadata({ params }) {
+  const { slug } = await params;
+
+  return getRankMathMetadata(`/${slug.join("/")}`);
+}
 
 export default async function DynamicPage({ params }) {
 
