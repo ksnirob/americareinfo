@@ -10,6 +10,12 @@ function stripTrailingSlash(value = "") {
   return value.replace(/\/+$/, "");
 }
 
+function rewriteFrontendUrl(url, wordpressUrl, siteUrl) {
+  if (!url || !siteUrl || !url.startsWith(wordpressUrl)) return url;
+
+  return `${siteUrl}${url.slice(wordpressUrl.length)}`;
+}
+
 function getTagContent(html, tagName) {
   const regex = new RegExp(`<${tagName}[^>]*>([\\s\\S]*?)<\\/${tagName}>`, "i");
   return html.match(regex)?.[1]?.trim();
@@ -35,33 +41,53 @@ function getLinkHref(html, rel) {
   return match?.[1] || match?.[2] || undefined;
 }
 
+async function fetchRankMathHead(wordpressUrl, targetUrl) {
+  const endpoint = `${wordpressUrl}/wp-json/rankmath/v1/getHead?url=${encodeURIComponent(targetUrl)}`;
+  const response = await fetch(endpoint, { cache: "no-store" });
+
+  if (response.ok) {
+    const data = await response.json();
+
+    if (data?.head) return data.head;
+  }
+
+  const pageResponse = await fetch(targetUrl, { cache: "no-store" });
+
+  if (!pageResponse.ok) return "";
+
+  return pageResponse.text();
+}
+
 async function getRankMathMetadataUncached(path = "/") {
   try {
     const wordpressUrl = stripTrailingSlash(
       process.env.NEXT_PUBLIC_WORDPRESS_API_URL || "",
     );
+    const siteUrl = stripTrailingSlash(process.env.NEXT_PUBLIC_SITE_URL || "");
 
     if (!wordpressUrl) return {};
 
     const normalizedPath = path.startsWith("/") ? path : `/${path}`;
     const targetUrl = `${wordpressUrl}${normalizedPath}`;
-    const endpoint = `${wordpressUrl}/wp-json/rankmath/v1/getHead?url=${encodeURIComponent(targetUrl)}`;
-    const response = await fetch(endpoint, { cache: "no-store" });
-
-    if (!response.ok) return {};
-
-    const data = await response.json();
-    const head = data?.head || "";
+    const head = await fetchRankMathHead(wordpressUrl, targetUrl);
 
     if (!head) return {};
 
     const title = getTagContent(head, "title");
     const description = getMetaContent(head, "name", "description");
     const robots = getMetaContent(head, "name", "robots");
-    const canonical = getLinkHref(head, "canonical");
+    const canonical = rewriteFrontendUrl(
+      getLinkHref(head, "canonical"),
+      wordpressUrl,
+      siteUrl,
+    );
     const ogTitle = getMetaContent(head, "property", "og:title");
     const ogDescription = getMetaContent(head, "property", "og:description");
-    const ogUrl = getMetaContent(head, "property", "og:url");
+    const ogUrl = rewriteFrontendUrl(
+      getMetaContent(head, "property", "og:url"),
+      wordpressUrl,
+      siteUrl,
+    );
     const ogImage = getMetaContent(head, "property", "og:image");
     const ogType = getMetaContent(head, "property", "og:type");
     const ogSiteName = getMetaContent(head, "property", "og:site_name");

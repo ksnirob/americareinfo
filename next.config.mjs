@@ -38,10 +38,11 @@ const nextConfig = {
       {
         source: "/sitemap.xml",
         destination: "/sitemap_index.xml",
-        permanent: true,
+        statusCode: 301,
       },
     ];
   },
 };
+
 
 export default nextConfig;
