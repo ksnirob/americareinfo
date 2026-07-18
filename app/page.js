@@ -2,10 +2,14 @@ import {
   getPageBySlug,  
 } from "@/src/lib/wordpress-server";
 import WordpressContent from "@/src/lib/WordpressContent";
+import { getRankMathMetadata } from "@/src/utils/getRankMathMetadata";
+
+export async function generateMetadata() {
+  return getRankMathMetadata("/");
+}
 
 export default async function HomePage() {
 
-  // **NEW UPDATE** Request home page generated CSS with the home slug.
   const [page] = await Promise.all([
     getPageBySlug("home"),
   ]);

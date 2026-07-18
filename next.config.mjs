@@ -20,8 +20,25 @@ const nextConfig = {
 
     return [
       {
+        source: "/sitemap_index.xml",
+        destination: "/api/rankmath-sitemap/sitemap_index.xml",
+      },
+      {
+        source: "/:file([A-Za-z0-9_-]+-sitemap[0-9]*).xml",
+        destination: "/api/rankmath-sitemap/:file.xml",
+      },
+      {
         source: "/wp-content/:path*",
         destination: `${wordpressUrl}/wp-content/:path*`,
+      },
+    ];
+  },
+  async redirects() {
+    return [
+      {
+        source: "/sitemap.xml",
+        destination: "/sitemap_index.xml",
+        statusCode: 301,
       },
     ];
   },
