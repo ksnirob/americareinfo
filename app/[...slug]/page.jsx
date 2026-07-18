@@ -17,17 +17,10 @@ export default async function DynamicPage({ params }) {
   }
 
   return (
-    <div>
-      {/* Page Title */}
-      <h1
-        dangerouslySetInnerHTML={{
-          __html: page.title.rendered,
-        }}
-      />
-
+    <>
       {/* Page Content */}
       <WordpressContent content={page.content.rendered} />
 
-    </div>
+    </>
   );
 }

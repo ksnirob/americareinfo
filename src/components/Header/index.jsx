@@ -17,6 +17,6 @@ export default async function Footer() {
                 }}
             />
         )}
-        <WordpressContent as="header" className="" content={header.html} />
+        <WordpressContent as="header" className="wp-block-template-part" content={header.html} />
     </>;
 }
