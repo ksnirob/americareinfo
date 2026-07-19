@@ -1,3 +1,5 @@
+import { fetchWordPressWithTimeout } from "@/src/lib/wordpress-server";
+
 const WORDPRESS_URL = (process.env.NEXT_PUBLIC_WORDPRESS_API_URL || "").replace(
   /\/+$/,
   "",
@@ -35,10 +37,16 @@ export async function GET(request, context) {
     return new Response("Sitemap not found", { status: 404 });
   }
 
-  const response = await fetch(`${WORDPRESS_URL}/${file}`, {
-    headers: getWordPressHeaders(),
-    cache: "no-store",
-  });
+  let response;
+
+  try {
+    response = await fetchWordPressWithTimeout(`${WORDPRESS_URL}/${file}`, {
+      headers: getWordPressHeaders(),
+      cache: "no-store",
+    });
+  } catch {
+    return new Response(`Sitemap request timed out: ${file}`, { status: 504 });
+  }
 
   if (!response.ok) {
     return new Response(`Sitemap not found from WordPress: ${file}`, {

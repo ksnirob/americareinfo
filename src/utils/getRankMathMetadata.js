@@ -1,7 +1,10 @@
 import "server-only";
 
 import { unstable_cache } from "next/cache";
-import { WORDPRESS_CACHE_TAG } from "@/src/lib/wordpress-server";
+import {
+  fetchWordPressWithTimeout,
+  WORDPRESS_CACHE_TAG,
+} from "@/src/lib/wordpress-server";
 
 const WORDPRESS_CACHE_REVALIDATE_SECONDS =
   Number(process.env.WORDPRESS_CACHE_REVALIDATE_SECONDS) || 3600;
@@ -43,7 +46,9 @@ function getLinkHref(html, rel) {
 
 async function fetchRankMathHead(wordpressUrl, targetUrl) {
   const endpoint = `${wordpressUrl}/wp-json/rankmath/v1/getHead?url=${encodeURIComponent(targetUrl)}`;
-  const response = await fetch(endpoint, { cache: "no-store" });
+  const response = await fetchWordPressWithTimeout(endpoint, {
+    cache: "no-store",
+  });
 
   if (response.ok) {
     const data = await response.json();
@@ -51,7 +56,9 @@ async function fetchRankMathHead(wordpressUrl, targetUrl) {
     if (data?.head) return data.head;
   }
 
-  const pageResponse = await fetch(targetUrl, { cache: "no-store" });
+  const pageResponse = await fetchWordPressWithTimeout(targetUrl, {
+    cache: "no-store",
+  });
 
   if (!pageResponse.ok) return "";
 
