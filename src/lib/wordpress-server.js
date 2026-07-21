@@ -1,10 +1,10 @@
 import "server-only";
 
 import { unstable_cache } from "next/cache";
+import { rewriteBackendUrlsInHtml } from "./wordpress";
 
 const API_URL = process.env.WORDPRESS_API_URL?.replace(/\/+$/, "");
 const WORDPRESS_URL = process.env.NEXT_PUBLIC_WORDPRESS_API_URL?.replace(/\/+$/, "");
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "");
 
 export const WORDPRESS_CACHE_TAG = "wordpress";
 
@@ -30,19 +30,6 @@ export async function fetchWordPressWithTimeout(url, options = {}) {
   }
 }
  
-function rewriteWordPressLinks(html) {
-  if (!html || !WORDPRESS_URL || !SITE_URL) return html || "";
- 
-  return html.replace(
-    /(\bhref\s*=\s*)(["'])(.*?)\2/gi,
-    (match, attribute, quote, url) => {
-      if (!url.startsWith(WORDPRESS_URL)) return match;
- 
-      return `${attribute}${quote}${url.replace(WORDPRESS_URL, SITE_URL)}${quote}`;
-    },
-  );
-}
-
 export const getCachedWordPressData = unstable_cache(
   async (endpoint) => {
     if (!API_URL) throw new Error("WORDPRESS_API_URL is not configured");
@@ -87,7 +74,7 @@ export async function getHeader() {
 
     return {
       ...header,
-      html: rewriteWordPressLinks(header?.html),
+      html: rewriteBackendUrlsInHtml(header?.html),
     };
   } catch {
     return null;
@@ -108,7 +95,7 @@ export async function getTemplatePart( template ) {
 
     return {
       ...response,
-      html: rewriteWordPressLinks(response?.html),
+      html: rewriteBackendUrlsInHtml(response?.html),
     };
   } catch {
     return null;

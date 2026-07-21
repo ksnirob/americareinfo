@@ -15,7 +15,7 @@ export default async function RootLayout({ children }) {
       <head> 
         <link
           rel="stylesheet"
-          href={`${process.env.NEXT_PUBLIC_WORDPRESS_API_URL}/wp-content/uploads/headless-css/style.css`}
+          href="/wp-content/uploads/headless-css/style.css"
         />
       </head>
 

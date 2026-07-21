@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { convertBackendUrlToFrontendRoute } from "./wordpress";
+import { rewriteBackendUrlsInHtml } from "./wordpress";
 
 export default function WordpressContent({
   content,
@@ -10,13 +10,7 @@ export default function WordpressContent({
 }) {
   const router = useRouter();
   const convertedContent =
-    typeof content === "string"
-      ? content.replace(
-          /(\bhref\s*=\s*)(["'])(.*?)\2/gi,
-          (match, attribute, quote, url) =>
-            `${attribute}${quote}${convertBackendUrlToFrontendRoute(url)}${quote}`,
-        )
-      : "";
+    typeof content === "string" ? rewriteBackendUrlsInHtml(content) : "";
 
   function getInternalUrl(event) {
     const link = event.target.closest("a");
