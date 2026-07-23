@@ -113,6 +113,20 @@ function animateSubmenu(item, toggle, open) {
   });
 }
 
+function resetSubmenu(item, toggle) {
+  const panel = getSubmenuPanel(item);
+
+  toggle.setAttribute("aria-expanded", "false");
+
+  if (!panel) return;
+
+  window.clearTimeout(panel.aciAnimationTimer);
+  setPanelOpenLayout(panel, false);
+  setPanelHeight(panel, "0px");
+  panel.style.opacity = "0";
+  panel.style.setProperty("overflow", "hidden", "important");
+}
+
 export function openNavigationMenu(target) {
   const navigation = getNavigationContainer(target);
   const menu = navigation?.querySelector(
@@ -126,6 +140,13 @@ export function openNavigationMenu(target) {
   if (!menu) return false;
 
   menu.classList.add("is-menu-open", "has-modal-open");
+  menu.querySelectorAll(".wp-block-navigation-submenu").forEach((item) => {
+    const toggle = item.querySelector(
+      ":scope > .wp-block-navigation-submenu__toggle",
+    );
+
+    if (toggle) resetSubmenu(item, toggle);
+  });
   menu.style.overflowX = "hidden";
   menu.style.overflowY = "auto";
   menu.style.scrollbarGutter = "auto";
@@ -158,9 +179,15 @@ export function closeNavigationMenu(target) {
 
   menus.forEach((responsiveMenu) => {
     responsiveMenu.classList.remove("is-menu-open", "has-modal-open");
-    responsiveMenu
-      .querySelectorAll(".wp-block-navigation-submenu__toggle")
-      .forEach((toggle) => toggle.setAttribute("aria-expanded", "false"));
+    responsiveMenu.querySelectorAll(".wp-block-navigation-submenu").forEach(
+      (item) => {
+        const toggle = item.querySelector(
+          ":scope > .wp-block-navigation-submenu__toggle",
+        );
+
+        if (toggle) resetSubmenu(item, toggle);
+      },
+    );
   });
 
   document.documentElement.classList.remove("has-modal-open");
