@@ -67,6 +67,9 @@ export function openNavigationMenu(target) {
   if (!menu) return false;
 
   menu.classList.add("is-menu-open", "has-modal-open");
+  menu.style.overflowX = "hidden";
+  menu.style.overflowY = "auto";
+  menu.style.scrollbarGutter = "auto";
   document.documentElement.classList.add("has-modal-open");
   document.body.classList.add("has-modal-open");
 
