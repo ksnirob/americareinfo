@@ -10,6 +10,23 @@ function getSubmenuPanel(item) {
   return item.querySelector(":scope > .wp-block-navigation__submenu-container");
 }
 
+function updateMenuAlignment(menu) {
+  const dialog = menu?.querySelector(".wp-block-navigation__responsive-dialog");
+  const content = menu?.querySelector(
+    ".wp-block-navigation__responsive-container-content",
+  );
+
+  if (!dialog || !content) return;
+
+  const availableHeight = menu.clientHeight;
+  const contentHeight = content.scrollHeight;
+  const shouldCenter = contentHeight + 132 <= availableHeight;
+  const alignment = shouldCenter ? "center" : "flex-start";
+
+  dialog.style.alignItems = alignment;
+  dialog.style.justifyContent = alignment;
+}
+
 function setPanelHeight(panel, value) {
   panel.style.setProperty("height", value, "important");
   panel.style.setProperty("max-height", "none", "important");
@@ -75,6 +92,7 @@ function animateSubmenu(item, toggle, open) {
 
     panel.aciAnimationTimer = window.setTimeout(() => {
       setPanelHeight(panel, `${panel.scrollHeight}px`);
+      updateMenuAlignment(getResponsiveMenu(panel));
     }, 470);
 
     return;
@@ -91,6 +109,7 @@ function animateSubmenu(item, toggle, open) {
     setPanelOpenLayout(panel, false);
     setPanelHeight(panel, "0px");
     panel.style.opacity = "0";
+    window.setTimeout(() => updateMenuAlignment(getResponsiveMenu(panel)), 470);
   });
 }
 
@@ -116,10 +135,10 @@ export function openNavigationMenu(target) {
   }
 
   if (dialog) {
-    dialog.style.alignItems = "flex-start";
-    dialog.style.justifyContent = "flex-start";
     dialog.style.minHeight = "100%";
   }
+
+  window.requestAnimationFrame(() => updateMenuAlignment(menu));
 
   document.documentElement.classList.add("has-modal-open");
   document.body.classList.add("has-modal-open");
