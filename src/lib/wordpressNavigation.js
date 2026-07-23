@@ -15,6 +15,35 @@ function setPanelHeight(panel, value) {
   panel.style.setProperty("max-height", "none", "important");
 }
 
+function setPanelOpenLayout(panel, open) {
+  panel.style.setProperty("display", "flex", "important");
+  panel.style.setProperty("flex-basis", "100%", "important");
+  panel.style.setProperty("flex-direction", "column", "important");
+  panel.style.setProperty("align-items", "center", "important");
+  panel.style.setProperty("justify-content", "flex-start", "important");
+  panel.style.setProperty("gap", "8px", "important");
+  panel.style.setProperty("width", "min(240px, 100%)", "important");
+  panel.style.setProperty("min-width", "0", "important");
+  panel.style.setProperty("position", "static", "important");
+  panel.style.setProperty("background", "transparent", "important");
+  panel.style.setProperty("margin-right", "auto", "important");
+  panel.style.setProperty("margin-left", "auto", "important");
+  panel.style.setProperty("padding-right", "0", "important");
+  panel.style.setProperty("padding-left", "0", "important");
+  panel.style.setProperty("border-top-style", "solid", "important");
+  panel.style.setProperty("border-top-color", "#f8971c", "important");
+
+  if (open) {
+    panel.style.setProperty("margin-top", "12px", "important");
+    panel.style.setProperty("padding-top", "16px", "important");
+    panel.style.setProperty("border-top-width", "1px", "important");
+  } else {
+    panel.style.setProperty("margin-top", "0", "important");
+    panel.style.setProperty("padding-top", "0", "important");
+    panel.style.setProperty("border-top-width", "0", "important");
+  }
+}
+
 function animateSubmenu(item, toggle, open) {
   const panel = getSubmenuPanel(item);
 
@@ -31,10 +60,15 @@ function animateSubmenu(item, toggle, open) {
 
   if (open) {
     toggle.setAttribute("aria-expanded", "true");
+    item.style.setProperty("flex-wrap", "wrap", "important");
+    item.style.setProperty("align-items", "center", "important");
+    item.style.setProperty("justify-content", "center", "important");
+    setPanelOpenLayout(panel, false);
     setPanelHeight(panel, "0px");
     panel.style.opacity = "0";
 
     window.requestAnimationFrame(() => {
+      setPanelOpenLayout(panel, true);
       setPanelHeight(panel, `${panel.scrollHeight}px`);
       panel.style.opacity = "1";
     });
@@ -47,12 +81,14 @@ function animateSubmenu(item, toggle, open) {
   }
 
   setPanelHeight(panel, `${panel.scrollHeight}px`);
+  setPanelOpenLayout(panel, true);
   panel.style.opacity = "1";
 
   panel.offsetHeight;
   toggle.setAttribute("aria-expanded", "false");
 
   window.requestAnimationFrame(() => {
+    setPanelOpenLayout(panel, false);
     setPanelHeight(panel, "0px");
     panel.style.opacity = "0";
   });
