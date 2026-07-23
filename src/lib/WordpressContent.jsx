@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useCounterAnimation } from "./useCounterAnimation";
 import {
+  closeDesktopSubmenus,
   closeNavigationMenu,
   handleNavigationControl,
 } from "./wordpressNavigation";
@@ -61,6 +62,7 @@ export default function WordpressContent({
     event.preventDefault();
     router.push(url.pathname + url.search + url.hash);
     closeNavigationMenu(event.target);
+    closeDesktopSubmenus(event.target);
   }
 
   return (
