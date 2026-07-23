@@ -157,6 +157,7 @@ export default function WordpressContent({
 
     event.preventDefault();
     router.push(url.pathname + url.search + url.hash);
+    closeNavigationMenu(event.target);
   }
 
   return (
