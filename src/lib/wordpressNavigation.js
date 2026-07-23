@@ -63,6 +63,10 @@ export function openNavigationMenu(target) {
   const menu = navigation?.querySelector(
     ".wp-block-navigation__responsive-container",
   );
+  const closeWrapper = menu?.querySelector(
+    ".wp-block-navigation__responsive-close",
+  );
+  const dialog = menu?.querySelector(".wp-block-navigation__responsive-dialog");
 
   if (!menu) return false;
 
@@ -70,6 +74,17 @@ export function openNavigationMenu(target) {
   menu.style.overflowX = "hidden";
   menu.style.overflowY = "auto";
   menu.style.scrollbarGutter = "auto";
+
+  if (closeWrapper) {
+    closeWrapper.style.minHeight = "100%";
+  }
+
+  if (dialog) {
+    dialog.style.alignItems = "flex-start";
+    dialog.style.justifyContent = "flex-start";
+    dialog.style.minHeight = "100%";
+  }
+
   document.documentElement.classList.add("has-modal-open");
   document.body.classList.add("has-modal-open");
 
