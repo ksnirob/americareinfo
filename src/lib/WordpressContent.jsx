@@ -1,6 +1,8 @@
 "use client";
 
+import { useRef } from "react";
 import { useRouter } from "next/navigation";
+import { useCounterAnimation } from "./useCounterAnimation";
 import { rewriteBackendUrlsInHtml } from "./wordpress";
 
 export default function WordpressContent({
@@ -9,8 +11,11 @@ export default function WordpressContent({
   className = "wp-content",
 }) {
   const router = useRouter();
+  const contentRef = useRef(null);
   const convertedContent =
     typeof content === "string" ? rewriteBackendUrlsInHtml(content) : "";
+
+  useCounterAnimation(contentRef, convertedContent);
 
   function getNavigationContainer(target) {
     return target.closest(".wp-block-navigation");
@@ -162,6 +167,7 @@ export default function WordpressContent({
 
   return (
     <Component
+      ref={contentRef}
       className={className}
       onClick={handleNavigation}
       onMouseOver={prefetchNavigation}
