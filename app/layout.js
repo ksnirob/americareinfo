@@ -15,7 +15,7 @@ export default async function RootLayout({ children }) {
   const sitePath = await resolveWordPressSitePath(
     requestHeaders.get("x-pathname") || "",
   );
-  const stylesheetHref = `/${sitePath ? `${sitePath}/` : ""}wp-content/uploads/headless-css/style.css`;
+  const stylesheetHref = `/api/wordpress-css${sitePath ? `?site=${sitePath}` : ""}`;
 
   return (
     <html lang="en">

@@ -4,16 +4,45 @@ const WORDPRESS_URL = (process.env.NEXT_PUBLIC_WORDPRESS_API_URL || "").replace(
   /\/+$/,
   "",
 );
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "").replace(/\/+$/, "");
 const CSS_PATH = "/wp-content/uploads/headless-css/style.css";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-function rewriteCssUrls(css, frontendUrl) {
-  if (!css || !WORDPRESS_URL || !frontendUrl) return css || "";
+function getWordPressUrl(sitePath = "") {
+  return [WORDPRESS_URL, sitePath].filter(Boolean).join("/");
+}
 
-  return css.split(WORDPRESS_URL).join(frontendUrl);
+function rewriteCssUrls(css) {
+  if (!css || !WORDPRESS_URL) return css || "";
+
+  return css.split(WORDPRESS_URL).join("");
+}
+
+function getSitePath(request) {
+  return (request.nextUrl.searchParams.get("site") || "")
+    .trim()
+    .replace(/^\/+|\/+$/g, "");
+}
+
+async function getHeadlessCssUrl(sitePath) {
+  const wordpressUrl = getWordPressUrl(sitePath);
+  const response = await fetchWordPressWithTimeout(
+    `${wordpressUrl}/wp-json/aci/v1/headless-css`,
+    { cache: "no-store" },
+  );
+
+  if (!response.ok) return "";
+
+  const contentType = response.headers.get("content-type") || "";
+
+  if (contentType.includes("application/json")) {
+    const data = await response.json();
+
+    return data?.url || "";
+  }
+
+  return "";
 }
 
 export async function GET(request) {
@@ -22,11 +51,13 @@ export async function GET(request) {
   }
 
   let response;
+  const sitePath = getSitePath(request);
 
   try {
-    response = await fetchWordPressWithTimeout(`${WORDPRESS_URL}${CSS_PATH}`, {
-      cache: "no-store",
-    });
+    const headlessCssUrl = await getHeadlessCssUrl(sitePath);
+    const cssUrl = headlessCssUrl || `${getWordPressUrl(sitePath)}${CSS_PATH}`;
+
+    response = await fetchWordPressWithTimeout(cssUrl, { cache: "no-store" });
   } catch {
     return new Response("WordPress CSS request timed out", { status: 504 });
   }
@@ -37,8 +68,7 @@ export async function GET(request) {
     });
   }
 
-  const frontendUrl = SITE_URL || request.nextUrl.origin;
-  const css = rewriteCssUrls(await response.text(), frontendUrl);
+  const css = rewriteCssUrls(await response.text());
 
   return new Response(css, {
     status: 200,
