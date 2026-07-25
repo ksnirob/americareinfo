@@ -2,7 +2,10 @@ import "../src/scss/global.scss";
 
 import Header from "@/src/components/Header";
 import Footer from "@/src/components/Footer";
-import { resolveWordPressSitePath } from "@/src/lib/wordpress-server";
+import {
+  getHeadlessCssUrl,
+  resolveWordPressSitePath,
+} from "@/src/lib/wordpress-server";
 import { headers } from "next/headers";
 
 export const metadata = {
@@ -15,17 +18,13 @@ export default async function RootLayout({ children }) {
   const sitePath = await resolveWordPressSitePath(
     requestHeaders.get("x-pathname") || "",
   );
-  const stylesheetHref = `/api/wordpress-css${sitePath ? `?site=${sitePath}` : ""}`;
+  const stylesheetHref = await getHeadlessCssUrl(sitePath);
 
   return (
     <html lang="en">
-      <head> 
-        <link
-          rel="stylesheet"
-          href={stylesheetHref}
-        />
+      <head>
+        {stylesheetHref && <link rel="stylesheet" href={stylesheetHref} />}
       </head>
-
       <body>
         <Header />
         <main>{children}</main>
@@ -34,3 +33,4 @@ export default async function RootLayout({ children }) {
     </html>
   );
 }
+

@@ -14,15 +14,16 @@ const WORDPRESS_FETCH_TIMEOUT_MS =
   Number(process.env.WORDPRESS_FETCH_TIMEOUT_MS) || 5000;
 
 export async function fetchWordPressWithTimeout(url, options = {}) {
+  const { timeoutMs = WORDPRESS_FETCH_TIMEOUT_MS, ...fetchOptions } = options;
   const controller = new AbortController();
   const timeout = setTimeout(
     () => controller.abort(),
-    WORDPRESS_FETCH_TIMEOUT_MS,
+    timeoutMs,
   );
 
   try {
     return await fetch(url, {
-      ...options,
+      ...fetchOptions,
       signal: controller.signal,
     });
   } finally {
@@ -134,6 +135,24 @@ export async function getHeader(sitePath = "") {
     };
   } catch {
     return null;
+  }
+}
+
+export async function getHeadlessCssUrl(sitePath = "") {
+  try {
+    const wordpressUrl = getWordPressUrl(sitePath);
+    const res = await fetchWordPressWithTimeout(
+      `${wordpressUrl}/wp-json/aci/v1/headless-css`,
+      { next: { revalidate: 300, tags: ["headless-css"] } },
+    );
+
+    if (!res.ok) return "";
+
+    const response = await res.json();
+
+    return response?.url || "";
+  } catch {
+    return "";
   }
 }
 

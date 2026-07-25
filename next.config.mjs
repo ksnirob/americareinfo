@@ -28,10 +28,6 @@ const nextConfig = {
         destination: "/api/rankmath-sitemap/:file.xml",
       },
       {
-        source: "/wp-content/uploads/headless-css/style.css",
-        destination: "/api/wordpress-css",
-      },
-      {
         source: "/wp-content/:path*",
         destination: `${wordpressUrl}/wp-content/:path*`,
       },
