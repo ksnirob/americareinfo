@@ -2,10 +2,6 @@ import "../src/scss/global.scss";
 
 import Header from "@/src/components/Header";
 import Footer from "@/src/components/Footer";
-import {
-  getHeadlessCssUrl,
-  resolveWordPressSitePath,
-} from "@/src/lib/wordpress-server";
 import { headers } from "next/headers";
 
 export const metadata = {
@@ -15,10 +11,10 @@ export const metadata = {
 
 export default async function RootLayout({ children }) {
   const requestHeaders = await headers();
-  const sitePath = await resolveWordPressSitePath(
-    requestHeaders.get("x-pathname") || "",
-  );
-  const stylesheetHref = await getHeadlessCssUrl(sitePath);
+  const firstPathSegment = (requestHeaders.get("x-pathname") || "")
+    .replace(/^\/+/, "")
+    .split("/")[0];
+  const stylesheetHref = `/wp-json/aci/v1/headless-css${firstPathSegment ? `?site=${firstPathSegment}` : ""}`;
 
   return (
     <html lang="en">
@@ -33,4 +29,3 @@ export default async function RootLayout({ children }) {
     </html>
   );
 }
-
