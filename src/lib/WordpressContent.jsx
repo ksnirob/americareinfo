@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useCounterAnimation } from "./useCounterAnimation";
+import { useWordPressVideos } from "./useWordPressVideos";
 import {
   closeDesktopSubmenus,
   closeNavigationMenu,
@@ -21,6 +22,7 @@ export default function WordpressContent({
     typeof content === "string" ? rewriteBackendUrlsInHtml(content) : "";
 
   useCounterAnimation(contentRef, convertedContent);
+  useWordPressVideos(contentRef, convertedContent);
 
   function getInternalUrl(event) {
     const link = event.target.closest("a");
