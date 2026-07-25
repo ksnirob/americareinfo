@@ -1,8 +1,12 @@
 import { getTemplatePart } from "@/src/lib/wordpress-server";
+import { resolveWordPressSitePath } from "@/src/lib/wordpress-server";
 import WordpressContent from "@/src/lib/WordpressContent";
+import { headers } from "next/headers";
 
 export default async function Footer() {
-    const footer = await getTemplatePart('footer');
+    const requestHeaders = await headers();
+    const sitePath = await resolveWordPressSitePath(requestHeaders.get("x-pathname") || "");
+    const footer = await getTemplatePart('footer', sitePath);
 
     if (!footer) {
         return null;

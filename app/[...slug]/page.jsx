@@ -1,22 +1,27 @@
 import {
   getPageBySlug,
+  getWordPressPathWithoutSite,
+  resolveWordPressSitePath,
 } from "@/src/lib/wordpress-server";
 import WordpressContent from "@/src/lib/WordpressContent";
 import { getRankMathMetadata } from "@/src/utils/getRankMathMetadata";
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
+  const path = `/${slug.join("/")}`;
 
-  return getRankMathMetadata(`/${slug.join("/")}`);
+  return getRankMathMetadata(path);
 }
 
 export default async function DynamicPage({ params }) {
 
   const { slug } = await params;
-  const pageSlug = slug.join("/");
+  const path = slug.join("/");
+  const sitePath = await resolveWordPressSitePath(path);
+  const pageSlug = getWordPressPathWithoutSite(path, sitePath) || "home";
 
   const [page] = await Promise.all([
-    getPageBySlug(pageSlug)
+    getPageBySlug(pageSlug, sitePath)
   ]);
 
   if (!page) {

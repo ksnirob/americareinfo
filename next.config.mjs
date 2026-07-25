@@ -35,6 +35,10 @@ const nextConfig = {
         source: "/wp-content/:path*",
         destination: `${wordpressUrl}/wp-content/:path*`,
       },
+      {
+        source: "/:site/wp-content/:path*",
+        destination: `${wordpressUrl}/:site/wp-content/:path*`,
+      },
     ];
   },
   async redirects() {

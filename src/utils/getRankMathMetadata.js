@@ -3,6 +3,7 @@ import "server-only";
 import { unstable_cache } from "next/cache";
 import {
   fetchWordPressWithTimeout,
+  resolveWordPressSitePath,
   WORDPRESS_CACHE_TAG,
 } from "@/src/lib/wordpress-server";
 
@@ -45,7 +46,9 @@ function getLinkHref(html, rel) {
 }
 
 async function fetchRankMathHead(wordpressUrl, targetUrl) {
-  const endpoint = `${wordpressUrl}/wp-json/rankmath/v1/getHead?url=${encodeURIComponent(targetUrl)}`;
+  const sitePath = await resolveWordPressSitePath(new URL(targetUrl).pathname);
+  const rankMathUrl = [wordpressUrl, sitePath].filter(Boolean).join("/");
+  const endpoint = `${rankMathUrl}/wp-json/rankmath/v1/getHead?url=${encodeURIComponent(targetUrl)}`;
   const response = await fetchWordPressWithTimeout(endpoint, {
     cache: "no-store",
   });

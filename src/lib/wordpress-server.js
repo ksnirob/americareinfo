@@ -29,12 +29,65 @@ export async function fetchWordPressWithTimeout(url, options = {}) {
     clearTimeout(timeout);
   }
 }
+
+function getFirstPathSegment(path = "") {
+  const firstSegment = path.replace(/^\/+/, "").split("/")[0];
+
+  return firstSegment || "";
+}
+
+export function getWordPressPathWithoutSite(path = "", sitePath = "") {
+  const normalizedPath = path.replace(/^\/+|\/+$/g, "");
+
+  if (!sitePath) return normalizedPath;
+
+  return normalizedPath.slice(sitePath.length).replace(/^\/+/, "");
+}
+
+function getWordPressUrl(sitePath = "") {
+  return [WORDPRESS_URL, sitePath].filter(Boolean).join("/");
+}
+
+function getWordPressApiUrl(sitePath = "") {
+  if (!sitePath) return API_URL;
+
+  return `${getWordPressUrl(sitePath)}/wp-json/wp/v2`;
+}
+
+const getCachedWordPressSiteProbe = unstable_cache(
+  async (sitePath) => {
+    if (!sitePath || !WORDPRESS_URL) return false;
+
+    try {
+      const response = await fetchWordPressWithTimeout(
+        `${getWordPressApiUrl(sitePath)}/pages?per_page=1&_fields=id`,
+      );
+
+      return response.ok;
+    } catch {
+      return false;
+    }
+  },
+  ["wordpress-multisite-probe"],
+  {
+    revalidate: WORDPRESS_CACHE_REVALIDATE_SECONDS,
+    tags: [WORDPRESS_CACHE_TAG],
+  },
+);
+
+export async function resolveWordPressSitePath(path = "") {
+  const firstSegment = getFirstPathSegment(path);
+
+  if (!firstSegment) return "";
+
+  return (await getCachedWordPressSiteProbe(firstSegment)) ? firstSegment : "";
+}
  
 export const getCachedWordPressData = unstable_cache(
-  async (endpoint) => {
-    if (!API_URL) throw new Error("WORDPRESS_API_URL is not configured");
+  async (endpoint, apiUrl = API_URL) => {
+    if (!apiUrl) throw new Error("WORDPRESS_API_URL is not configured");
 
-    const response = await fetchWordPressWithTimeout(`${API_URL}/${endpoint}`);
+    const response = await fetchWordPressWithTimeout(`${apiUrl}/${endpoint}`);
 
     if (!response.ok) throw new Error("WordPress request failed");
 
@@ -47,10 +100,12 @@ export const getCachedWordPressData = unstable_cache(
   },
 );
 
-export async function getPageBySlug(slug) {
+export async function getPageBySlug(slug, sitePath = "") {
   try {
+    const apiUrl = getWordPressApiUrl(sitePath);
     const pages = await getCachedWordPressData(
       `pages?slug=${encodeURIComponent(slug)}&_embed`,
+      apiUrl,
     );
 
     return pages[0] ?? null;
@@ -61,10 +116,11 @@ export async function getPageBySlug(slug) {
 }
 
 
-export async function getHeader() {
+export async function getHeader(sitePath = "") {
   try {
+    const wordpressUrl = getWordPressUrl(sitePath);
     const res = await fetchWordPressWithTimeout(
-      `${WORDPRESS_URL}/wp-json/aci/v1/header`,
+      `${wordpressUrl}/wp-json/aci/v1/header`,
       { next: { revalidate: 300, tags: ["wordpress-header"] } }
     );
 
@@ -82,10 +138,11 @@ export async function getHeader() {
 }
 
 
-export async function getTemplatePart( template ) {
+export async function getTemplatePart( template, sitePath = "" ) {
   try {
+    const wordpressUrl = getWordPressUrl(sitePath);
     const res = await fetchWordPressWithTimeout(
-      `${WORDPRESS_URL}/wp-json/aci/v1/template-part?includeStyles=true&name=${template}`,
+      `${wordpressUrl}/wp-json/aci/v1/template-part?includeStyles=true&name=${template}`,
       { next: { revalidate: 300, tags: ["wordpress-header"] } }
     );
 
