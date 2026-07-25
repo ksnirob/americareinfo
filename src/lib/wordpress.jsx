@@ -2,18 +2,17 @@ const WORDPRESS_API_URL = process.env.NEXT_PUBLIC_WORDPRESS_API_URL?.replace(
   /\/+$/,
   "",
 );
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "");
 
 export function convertBackendUrlToFrontendRoute(url) {
   if (!url || typeof url !== "string") {
     return "#";
   }
 
-  if (!WORDPRESS_API_URL || !SITE_URL) {
+  if (!WORDPRESS_API_URL || !url.startsWith(WORDPRESS_API_URL)) {
     return url;
   }
 
-  return url.split(WORDPRESS_API_URL).join(SITE_URL);
+  return url.slice(WORDPRESS_API_URL.length) || "/";
 }
 
 function convertBackendSrcSetToFrontendRoute(srcset) {
