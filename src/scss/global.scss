@@ -27,3 +27,39 @@
     opacity: 0;
   }
 }
+
+img {
+  height: auto;
+}
+
+.wp-block-template-part-wrapper {
+  display: contents;
+}
+
+footer.wp-block-template-part {
+  min-height: 520px;
+}
+
+footer.wp-block-template-part .wp-image-132 {
+  aspect-ratio: 388 / 89;
+  display: block;
+  height: auto;
+  max-width: 100%;
+}
+
+.wp-image-277 {
+  aspect-ratio: 90 / 91;
+  display: block;
+  height: auto;
+  max-width: 100%;
+}
+
+.wp-block-navigation__responsive-dialog {
+  min-height: 1px;
+}
+
+@media (max-width: 781px) {
+  footer.wp-block-template-part {
+    min-height: 980px;
+  }
+}

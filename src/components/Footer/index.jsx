@@ -21,6 +21,10 @@ export default async function Footer() {
                 }}
             />
         )}
-        <WordpressContent as="footer" className="" content={footer.html} />
+        <WordpressContent
+            as="div"
+            className="wp-block-template-part-wrapper"
+            content={footer.html}
+        />
     </>;
 }
