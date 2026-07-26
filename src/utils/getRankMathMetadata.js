@@ -14,6 +14,14 @@ function stripTrailingSlash(value = "") {
   return value.replace(/\/+$/, "");
 }
 
+function getWordPressBaseUrl() {
+  const rawBase = process.env.NEXT_PUBLIC_WORDPRESS_API_URL || "";
+
+  if (!rawBase) return "";
+
+  return stripTrailingSlash(rawBase.replace(/\/wp-json(?:\/.*)?\/?$/, ""));
+}
+
 function rewriteFrontendUrl(url, wordpressUrl, siteUrl) {
   if (!url || !siteUrl || !url.startsWith(wordpressUrl)) return url;
 
@@ -48,15 +56,32 @@ function getLinkHref(html, rel) {
 async function fetchRankMathHead(wordpressUrl, targetUrl) {
   const sitePath = await resolveWordPressSitePath(new URL(targetUrl).pathname);
   const rankMathUrl = [wordpressUrl, sitePath].filter(Boolean).join("/");
-  const endpoint = `${rankMathUrl}/wp-json/rankmath/v1/getHead?url=${encodeURIComponent(targetUrl)}`;
-  const response = await fetchWordPressWithTimeout(endpoint, {
-    cache: "no-store",
-  });
+  const encodedUrl = encodeURIComponent(targetUrl);
+  const endpoints = [
+    `${rankMathUrl}/wp-json/rankmath/v1/getHead?url=${encodedUrl}`,
+    `${rankMathUrl}/?rest_route=/rankmath/v1/getHead&url=${encodedUrl}`,
+  ];
 
-  if (response.ok) {
-    const data = await response.json();
+  for (const endpoint of endpoints) {
+    const response = await fetchWordPressWithTimeout(endpoint, {
+      cache: "no-store",
+      headers: {
+        Accept: "application/json",
+      },
+    });
 
-    if (data?.head) return data.head;
+    const body = await response.text();
+
+    if (body.startsWith("<?xml")) return "";
+    if (!response.ok) continue;
+
+    try {
+      const data = JSON.parse(body);
+
+      if (data?.head) return data.head;
+    } catch {
+      continue;
+    }
   }
 
   const pageResponse = await fetchWordPressWithTimeout(targetUrl, {
@@ -70,9 +95,7 @@ async function fetchRankMathHead(wordpressUrl, targetUrl) {
 
 async function getRankMathMetadataUncached(path = "/") {
   try {
-    const wordpressUrl = stripTrailingSlash(
-      process.env.NEXT_PUBLIC_WORDPRESS_API_URL || "",
-    );
+    const wordpressUrl = getWordPressBaseUrl();
     const siteUrl = stripTrailingSlash(process.env.NEXT_PUBLIC_SITE_URL || "");
 
     if (!wordpressUrl) return {};
