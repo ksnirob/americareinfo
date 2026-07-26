@@ -18,11 +18,5 @@ export default async function HomePage() {
     return <h1>Home page not found</h1>;
   }
 
-  return (
-    <div>
-      <main>
-        <WordpressContent content={page.content.rendered} />
-      </main>
-    </div>
-  );
+  return <WordpressContent content={page.content.rendered} />;
 }

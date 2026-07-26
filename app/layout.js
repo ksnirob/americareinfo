@@ -65,7 +65,7 @@ export default async function RootLayout({ children }) {
       </head>
       <body>
         <Header />
-        <main>{children}</main>
+        <main className="site-main">{children}</main>
         <Footer />
       </body>
     </html>

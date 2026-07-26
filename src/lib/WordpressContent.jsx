@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useCounterAnimation } from "./useCounterAnimation";
 import { useWordPressVideos } from "./useWordPressVideos";
@@ -23,6 +23,38 @@ export default function WordpressContent({
 
   useCounterAnimation(contentRef, convertedContent);
   useWordPressVideos(contentRef, convertedContent);
+
+  useEffect(() => {
+    const container = contentRef.current;
+
+    if (!container) return;
+
+    const links = Array.from(container.querySelectorAll("a[href]"));
+    const prefetchedUrls = new Set();
+
+    links.forEach((link) => {
+      const href = link.getAttribute("href");
+
+      if (!href || href.startsWith("#") || link.target === "_blank") return;
+
+      let url;
+
+      try {
+        url = new URL(href, window.location.origin);
+      } catch {
+        return;
+      }
+
+      if (url.origin !== window.location.origin) return;
+
+      const route = url.pathname + url.search + url.hash;
+
+      if (prefetchedUrls.has(route)) return;
+
+      prefetchedUrls.add(route);
+      router.prefetch(route);
+    });
+  }, [convertedContent, router]);
 
   function getInternalUrl(event) {
     const link = event.target.closest("a");
