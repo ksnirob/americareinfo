@@ -11,17 +11,37 @@ export function useWordPressVideos(containerRef, contentKey) {
     const videos = Array.from(container.querySelectorAll("video"));
 
     videos.forEach((video) => {
-      video.load();
+      const deferredSrc = video.dataset.wpVideoSrc;
 
-      if (!video.hasAttribute("autoplay")) return;
+      const loadVideo = () => {
+        if (deferredSrc && !video.getAttribute("src")) {
+          video.setAttribute("src", deferredSrc);
+        }
 
-      video.muted = true;
-      video.playsInline = true;
+        video.load();
 
-      const playPromise = video.play();
+        if (!video.hasAttribute("autoplay")) return;
 
-      if (playPromise?.catch) {
-        playPromise.catch(() => {});
+        video.muted = true;
+        video.playsInline = true;
+
+        const playPromise = video.play();
+
+        if (playPromise?.catch) {
+          playPromise.catch(() => {});
+        }
+      };
+
+      if (!deferredSrc) {
+        loadVideo();
+        return;
+      }
+
+      const idleCallback = window.requestIdleCallback || ((callback) => setTimeout(callback, 1800));
+      const idleId = idleCallback(loadVideo, { timeout: 2500 });
+
+      if (window.cancelIdleCallback) {
+        video.dataset.wpVideoIdleId = String(idleId);
       }
     });
   }, [containerRef, contentKey]);

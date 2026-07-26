@@ -50,6 +50,10 @@ function removeAttribute(tag, name) {
   return tag.replace(pattern, "");
 }
 
+function getAttribute(tag, name) {
+  return tag.match(new RegExp(`\\s${name}\\s*=\\s*(["'])(.*?)\\1`, "i"))?.[2] || "";
+}
+
 function optimizeAboveFoldMedia(html) {
   const coverMatch = html.match(/<div\b[^>]*class=(["'])[^"']*wp-block-cover[^"']*\1[\s\S]*?<\/div>\s*<\/div>/i);
   let optimizedHtml = html;
@@ -64,9 +68,13 @@ function optimizeAboveFoldMedia(html) {
       const priorityTag = setAttribute(
         setAttribute(
           setAttribute(
-            removeAttribute(tag, "loading").replace(
-              /\ssizes=(["'])auto,\s*/i,
-              " sizes=$1",
+            setAttribute(
+              removeAttribute(tag, "loading").replace(
+                /\ssizes=(["'])auto,\s*/i,
+                " sizes=$1",
+              ),
+              "sizes",
+              "(max-width: 781px) 100vw, 55vw",
             ),
             "loading",
             "eager",
@@ -86,7 +94,18 @@ function optimizeAboveFoldMedia(html) {
 
   return optimizedHtml.replace(
     /<video\b[^>]*class=(["'])[^"']*wp-block-cover__video-background[^"']*\1[^>]*>/i,
-    (tag) => setAttribute(tag, "fetchpriority", "low"),
+    (tag) => {
+      const src = getAttribute(tag, "src");
+      const deferredTag = src
+        ? setAttribute(removeAttribute(tag, "src"), "data-wp-video-src", src)
+        : tag;
+
+      return setAttribute(
+        setAttribute(deferredTag, "preload", "none"),
+        "fetchpriority",
+        "low",
+      );
+    },
   );
 }
 
@@ -129,8 +148,6 @@ export function getPriorityImagePreloads(html) {
 
   return matches.slice(0, 2).map((match) => {
     const tag = match[0];
-    const getAttribute = (name) =>
-      tag.match(new RegExp(`\\s${name}\\s*=\\s*(["'])(.*?)\\1`, "i"))?.[2] || "";
 
     return {
       href: getAttribute("src"),

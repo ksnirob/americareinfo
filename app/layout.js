@@ -12,7 +12,8 @@ export const metadata = {
 
 export default async function RootLayout({ children }) {
   const requestHeaders = await headers();
-  const firstPathSegment = (requestHeaders.get("x-pathname") || "")
+  const pathname = requestHeaders.get("x-pathname") || "/";
+  const firstPathSegment = pathname
     .replace(/^\/+/, "")
     .split("/")[0];
   const sitePath = await resolveWordPressSitePath(firstPathSegment);
