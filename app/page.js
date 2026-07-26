@@ -1,9 +1,12 @@
 import {
   getPageBySlug,  
 } from "@/src/lib/wordpress-server";
+import SiteFrame from "@/src/components/SiteFrame";
 import WordpressContent from "@/src/lib/WordpressContent";
 import { getPriorityImagePreloads } from "@/src/lib/wordpress";
 import { getRankMathMetadata } from "@/src/utils/getRankMathMetadata";
+
+export const revalidate = 86400;
 
 export async function generateMetadata() {
   return getRankMathMetadata("/");
@@ -16,13 +19,17 @@ export default async function HomePage() {
   ]);
 
   if (!page) {
-    return <h1>Home page not found</h1>;
+    return (
+      <SiteFrame>
+        <h1>Home page not found</h1>
+      </SiteFrame>
+    );
   }
 
   const lcpImage = getPriorityImagePreloads(page.content.rendered).at(-1);
 
   return (
-    <>
+    <SiteFrame>
       {lcpImage ? (
         <link
           rel="preload"
@@ -34,6 +41,6 @@ export default async function HomePage() {
         />
       ) : null}
       <WordpressContent content={page.content.rendered} />
-    </>
+    </SiteFrame>
   );
 }

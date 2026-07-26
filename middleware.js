@@ -23,16 +23,11 @@ export function middleware(request) {
     return NextResponse.rewrite(url);
   }
 
-  const requestHeaders = new Headers(request.headers);
-  requestHeaders.set("x-pathname", pathname);
-
-  return NextResponse.next({
-    request: {
-      headers: requestHeaders,
-    },
-  });
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|images).*)"],
+  matcher: [
+    "/((?!api|_next/static|_next/image|wp-content|wp-json|favicon.ico|images).*)",
+  ],
 };

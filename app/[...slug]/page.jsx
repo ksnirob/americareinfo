@@ -3,9 +3,17 @@ import {
   getWordPressPathWithoutSite,
   resolveWordPressSitePath,
 } from "@/src/lib/wordpress-server";
+import SiteFrame from "@/src/components/SiteFrame";
 import WordpressContent from "@/src/lib/WordpressContent";
 import { getPriorityImagePreloads } from "@/src/lib/wordpress";
 import { getRankMathMetadata } from "@/src/utils/getRankMathMetadata";
+
+export const revalidate = 86400;
+export const dynamicParams = true;
+
+export async function generateStaticParams() {
+  return [];
+}
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
@@ -26,7 +34,11 @@ export default async function DynamicPage({ params }) {
   ]);
 
   if (!page) {
-    return <h1>Page not found</h1>;
+    return (
+      <SiteFrame sitePath={sitePath}>
+        <h1>Page not found</h1>
+      </SiteFrame>
+    );
   }
 
   const lcpImage = pageSlug === "home"
@@ -34,7 +46,7 @@ export default async function DynamicPage({ params }) {
     : null;
 
   return (
-    <>
+    <SiteFrame sitePath={sitePath}>
       {lcpImage ? (
         <link
           rel="preload"
@@ -46,7 +58,6 @@ export default async function DynamicPage({ params }) {
         />
       ) : null}
       <WordpressContent content={page.content.rendered} />
-
-    </>
+    </SiteFrame>
   );
 }

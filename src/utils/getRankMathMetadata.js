@@ -8,7 +8,7 @@ import {
 } from "@/src/lib/wordpress-server";
 
 const WORDPRESS_CACHE_REVALIDATE_SECONDS =
-  Number(process.env.WORDPRESS_CACHE_REVALIDATE_SECONDS) || 3600;
+  Number(process.env.WORDPRESS_CACHE_REVALIDATE_SECONDS) || 86400;
 
 function stripTrailingSlash(value = "") {
   return value.replace(/\/+$/, "");

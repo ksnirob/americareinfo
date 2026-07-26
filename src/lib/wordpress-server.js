@@ -12,7 +12,7 @@ const WORDPRESS_URL = process.env.NEXT_PUBLIC_WORDPRESS_API_URL?.replace(/\/+$/,
 export const WORDPRESS_CACHE_TAG = "wordpress";
 
 const WORDPRESS_CACHE_REVALIDATE_SECONDS =
-  Number(process.env.WORDPRESS_CACHE_REVALIDATE_SECONDS) || 3600;
+  Number(process.env.WORDPRESS_CACHE_REVALIDATE_SECONDS) || 86400;
 const WORDPRESS_FETCH_TIMEOUT_MS =
   Number(process.env.WORDPRESS_FETCH_TIMEOUT_MS) || 5000;
 
@@ -125,7 +125,12 @@ export async function getHeader(sitePath = "") {
     const wordpressUrl = getWordPressUrl(sitePath);
     const res = await fetchWordPressWithTimeout(
       `${wordpressUrl}/wp-json/aci/v1/header`,
-      { next: { revalidate: 300, tags: ["wordpress-header"] } }
+      {
+        next: {
+          revalidate: WORDPRESS_CACHE_REVALIDATE_SECONDS,
+          tags: ["wordpress-header"],
+        },
+      }
     );
 
     if (!res.ok) return null;
@@ -146,7 +151,12 @@ export async function getHeadlessCssUrl(sitePath = "") {
     const wordpressUrl = getWordPressUrl(sitePath);
     const res = await fetchWordPressWithTimeout(
       `${wordpressUrl}/wp-json/aci/v1/headless-css`,
-      { next: { revalidate: 300, tags: ["headless-css"] } },
+      {
+        next: {
+          revalidate: WORDPRESS_CACHE_REVALIDATE_SECONDS,
+          tags: ["headless-css"],
+        },
+      },
     );
 
     if (!res.ok) return "";
@@ -173,7 +183,12 @@ export async function getTemplatePart( template, sitePath = "" ) {
     const wordpressUrl = getWordPressUrl(sitePath);
     const res = await fetchWordPressWithTimeout(
       `${wordpressUrl}/wp-json/aci/v1/template-part?includeStyles=true&name=${template}`,
-      { next: { revalidate: 300, tags: ["wordpress-header"] } }
+      {
+        next: {
+          revalidate: WORDPRESS_CACHE_REVALIDATE_SECONDS,
+          tags: ["wordpress-header"],
+        },
+      }
     );
 
     if (!res.ok) return null;
