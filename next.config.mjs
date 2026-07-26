@@ -27,14 +27,6 @@ const nextConfig = {
         source: "/:file([A-Za-z0-9_-]+-sitemap[0-9]*).xml",
         destination: "/api/rankmath-sitemap/:file.xml",
       },
-      {
-        source: "/wp-content/:path*",
-        destination: `${wordpressUrl}/wp-content/:path*`,
-      },
-      {
-        source: "/:site/wp-content/:path*",
-        destination: `${wordpressUrl}/:site/wp-content/:path*`,
-      },
     ];
   },
   async redirects() {

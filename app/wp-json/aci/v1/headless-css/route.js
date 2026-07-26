@@ -33,7 +33,7 @@ export async function GET(request) {
 
   try {
     response = await fetchWordPressWithTimeout(cssUrl, {
-      cache: "no-store",
+      next: { revalidate: 86400 },
       timeoutMs: 15000,
     });
   } catch {
@@ -50,7 +50,7 @@ export async function GET(request) {
     status: 200,
     headers: {
       "Content-Type": "text/css; charset=utf-8",
-      "Cache-Control": "public, s-maxage=300, stale-while-revalidate=3600",
+      "Cache-Control": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800",
     },
   });
 }
