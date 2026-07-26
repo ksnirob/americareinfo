@@ -3,7 +3,10 @@ import "../src/scss/global.scss";
 import Header from "@/src/components/Header";
 import Footer from "@/src/components/Footer";
 import { headers } from "next/headers";
-import { resolveWordPressSitePath } from "@/src/lib/wordpress-server";
+import {
+  getHeadlessCssHref,
+  resolveWordPressSitePath,
+} from "@/src/lib/wordpress-server";
 
 export const metadata = {
   title: "My Headless WordPress Site",
@@ -17,9 +20,7 @@ export default async function RootLayout({ children }) {
     .replace(/^\/+/, "")
     .split("/")[0];
   const sitePath = await resolveWordPressSitePath(firstPathSegment);
-  const stylesheetHref = sitePath
-    ? `/${sitePath}/wp-json/aci/v1/headless-css`
-    : "/wp-json/aci/v1/headless-css";
+  const stylesheetHref = await getHeadlessCssHref(sitePath);
 
   return (
     <html lang="en">

@@ -1,7 +1,10 @@
 import "server-only";
 
 import { unstable_cache } from "next/cache";
-import { rewriteBackendUrlsInHtml } from "./wordpress";
+import {
+  convertBackendUrlToFrontendRoute,
+  rewriteBackendUrlsInHtml,
+} from "./wordpress";
 
 const API_URL = process.env.WORDPRESS_API_URL?.replace(/\/+$/, "");
 const WORDPRESS_URL = process.env.NEXT_PUBLIC_WORDPRESS_API_URL?.replace(/\/+$/, "");
@@ -154,6 +157,14 @@ export async function getHeadlessCssUrl(sitePath = "") {
   } catch {
     return "";
   }
+}
+
+export async function getHeadlessCssHref(sitePath = "") {
+  const cssUrl = (await getHeadlessCssUrl(sitePath)) || (
+    sitePath ? await getHeadlessCssUrl("") : ""
+  );
+
+  return convertBackendUrlToFrontendRoute(cssUrl);
 }
 
 

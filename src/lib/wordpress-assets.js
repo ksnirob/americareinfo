@@ -9,6 +9,15 @@ const STATIC_ASSET_CACHE_CONTROL =
   "public, max-age=31536000, s-maxage=31536000, immutable";
 const isDevelopment = process.env.NODE_ENV === "development";
 
+function rewriteCssAssetUrls(css) {
+  if (!css || !WORDPRESS_URL) return css || "";
+
+  return css
+    .split(WORDPRESS_URL)
+    .join("")
+    .replace(/\bfont-display\s*:\s*fallback\b/gi, "font-display:swap");
+}
+
 function getAssetUrl(pathSegments = [], sitePath = "") {
   const assetPath = pathSegments.map(encodeURIComponent).join("/");
   const sitePrefix = sitePath ? `/${sitePath}` : "";
@@ -55,6 +64,18 @@ export async function proxyWordPressAsset(request, pathSegments, sitePath = "") 
 
   if (request.method === "HEAD") {
     return new Response(null, { status: 200, headers });
+  }
+
+  if (
+    contentType?.includes("text/css") ||
+    pathSegments.at(-1)?.toLowerCase().endsWith(".css")
+  ) {
+    headers.set("Content-Type", "text/css; charset=utf-8");
+
+    return new Response(rewriteCssAssetUrls(await response.text()), {
+      status: 200,
+      headers,
+    });
   }
 
   return new Response(response.body, { status: 200, headers });

@@ -150,9 +150,9 @@ export function getPriorityImagePreloads(html) {
     const tag = match[0];
 
     return {
-      href: getAttribute("src"),
-      imageSrcSet: getAttribute("srcset"),
-      imageSizes: getAttribute("sizes"),
+      href: getAttribute(tag, "src"),
+      imageSrcSet: getAttribute(tag, "srcset"),
+      imageSizes: getAttribute(tag, "sizes"),
     };
   }).filter((image) => image.href);
 }
