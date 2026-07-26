@@ -4,6 +4,7 @@ import {
   resolveWordPressSitePath,
 } from "@/src/lib/wordpress-server";
 import WordpressContent from "@/src/lib/WordpressContent";
+import { getLcpImagePreload } from "@/src/lib/wordpress";
 import { getRankMathMetadata } from "@/src/utils/getRankMathMetadata";
 
 export async function generateMetadata({ params }) {
@@ -28,9 +29,13 @@ export default async function DynamicPage({ params }) {
     return <h1>Page not found</h1>;
   }
 
+  const lcpImage = pageSlug === "home" ? getLcpImagePreload(page.content.rendered) : "";
+
   return (
     <>
-      {/* Page Content */}
+      {lcpImage ? (
+        <link rel="preload" as="image" href={lcpImage} fetchPriority="high" />
+      ) : null}
       <WordpressContent content={page.content.rendered} />
 
     </>

@@ -2,6 +2,7 @@ import {
   getPageBySlug,  
 } from "@/src/lib/wordpress-server";
 import WordpressContent from "@/src/lib/WordpressContent";
+import { getLcpImagePreload } from "@/src/lib/wordpress";
 import { getRankMathMetadata } from "@/src/utils/getRankMathMetadata";
 
 export async function generateMetadata() {
@@ -18,5 +19,14 @@ export default async function HomePage() {
     return <h1>Home page not found</h1>;
   }
 
-  return <WordpressContent content={page.content.rendered} />;
+  const lcpImage = getLcpImagePreload(page.content.rendered);
+
+  return (
+    <>
+      {lcpImage ? (
+        <link rel="preload" as="image" href={lcpImage} fetchPriority="high" />
+      ) : null}
+      <WordpressContent content={page.content.rendered} />
+    </>
+  );
 }

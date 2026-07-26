@@ -6,6 +6,15 @@ const wordpressUrl = process.env.NEXT_PUBLIC_WORDPRESS_API_URL?.replace(
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
+    deviceSizes: [300, 640, 768, 1024, 1094, 1280, 1920],
+    localPatterns: [
+      {
+        pathname: "/wp-content/uploads/**",
+      },
+      {
+        pathname: "/:site/wp-content/uploads/**",
+      },
+    ],
     remotePatterns: [
       process.env.WORDPRESS_IMAGE_HOSTNAME && {
         protocol: process.env.WORDPRESS_IMAGE_PROTOCOL || "https",
