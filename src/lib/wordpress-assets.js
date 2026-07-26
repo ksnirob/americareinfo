@@ -7,6 +7,7 @@ const WORDPRESS_URL = process.env.NEXT_PUBLIC_WORDPRESS_API_URL?.replace(
 
 const STATIC_ASSET_CACHE_CONTROL =
   "public, max-age=31536000, s-maxage=31536000, immutable";
+const isDevelopment = process.env.NODE_ENV === "development";
 
 function getAssetUrl(pathSegments = [], sitePath = "") {
   const assetPath = pathSegments.map(encodeURIComponent).join("/");
@@ -27,7 +28,9 @@ export async function proxyWordPressAsset(request, pathSegments, sitePath = "") 
       getAssetUrl(pathSegments, sitePath),
       {
         method: request.method,
-        next: { revalidate: 31536000 },
+        ...(isDevelopment
+          ? { cache: "no-store" }
+          : { next: { revalidate: 31536000 } }),
         timeoutMs: 15000,
       },
     );
@@ -43,10 +46,8 @@ export async function proxyWordPressAsset(request, pathSegments, sitePath = "") 
 
   const headers = new Headers();
   const contentType = response.headers.get("content-type");
-  const contentLength = response.headers.get("content-length");
 
   if (contentType) headers.set("Content-Type", contentType);
-  if (contentLength) headers.set("Content-Length", contentLength);
 
   headers.set("Cache-Control", STATIC_ASSET_CACHE_CONTROL);
   headers.set("Access-Control-Allow-Origin", "*");
