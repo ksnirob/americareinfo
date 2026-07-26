@@ -1,3 +1,51 @@
+@font-face {
+  font-family: "Open Sans";
+  font-style: normal;
+  font-weight: 300;
+  font-display: block;
+  src: url("/wp-content/uploads/fonts/memSYaGs126MiZpBA-UvWbX2vVnXBbObj2OVZyOOSr4dVJWUgsiH0C4iY1M2xLER.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Open Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url("/wp-content/uploads/fonts/memSYaGs126MiZpBA-UvWbX2vVnXBbObj2OVZyOOSr4dVJWUgsjZ0C4iY1M2xLER.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: Avenir;
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url("/wp-content/uploads/fonts/avenir-regular.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: Avenir;
+  font-style: normal;
+  font-weight: 500;
+  font-display: block;
+  src: url("/wp-content/uploads/fonts/avenir-medium.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: Avenir;
+  font-style: normal;
+  font-weight: 850;
+  font-display: block;
+  src: url("/wp-content/uploads/fonts/avenir-heavy.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: Avenir;
+  font-style: normal;
+  font-weight: 900;
+  font-display: block;
+  src: url("/wp-content/uploads/fonts/avenir-black.ttf") format("truetype");
+}
+
 .page-loading {
   position: fixed;
   top: 0;
